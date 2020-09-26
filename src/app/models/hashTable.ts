@@ -118,6 +118,11 @@ class HashTable {
     return null;
   };
 
+  // Função para retornar todos os buckets
+  getAll() {
+    return this.buckets;
+  };
+
   // Função para expandir ou reduzir o número de buckets em uma HashTable baseado no novo limite
   resize(newMax: number) {
     // Armazena todos os buckets atuais
