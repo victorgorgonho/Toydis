@@ -166,7 +166,7 @@ class RedisFuncController {
 
       // Executa se array não for do tipo objeto
       if (typeof orderedArray !== 'object') {
-        return res.status(400).send({ message: 'Valor não é do tipo object' });
+        return res.status(400).send({ message: "Valor não é do tipo object" });
       };
 
       // Executa se arrays de score e member tiverem tamanhos diferentes
@@ -211,7 +211,7 @@ class RedisFuncController {
 
       // Executa se array não for do tipo objeto
       if (typeof orderedArray !== 'object') {
-        return res.status(400).send({ message: 'Valor não é do tipo object' });
+        return res.status(400).send({ message: "Valor não é do tipo object" });
       };
 
       return res.json({ message: orderedArray.length });
@@ -233,19 +233,19 @@ class RedisFuncController {
 
       // Se não tiver nada na key, retornar null
       if (!orderedArray) {
-        return res.status(400).send({ message: null });
+        return res.status(404).send({ message: null });
       };
 
       // Executa se array não for do tipo objeto
       if (typeof orderedArray !== 'object') {
-        return res.status(400).send({ message: 'Valor não é do tipo object' });
+        return res.status(400).send({ message: "Valor não é do tipo object" });
       };
 
       // Index de member
       const index = binarySearch(orderedArray, member, 0, orderedArray.length - 1);
 
       if (index === false) {
-        return res.status(400).send({ message: null });
+        return res.status(404).send({ message: null });
       };
 
       return res.json({ message: index });
@@ -267,12 +267,12 @@ class RedisFuncController {
 
       // Se não tiver nada na key, retornar null
       if (!orderedArray) {
-        return res.status(400).send({ message: null });
+        return res.status(404).send({ message: null });
       };
 
       // Executa se array não for do tipo objeto
       if (typeof orderedArray !== 'object') {
-        return res.status(400).send({ message: 'Valor não é do tipo object' });
+        return res.status(400).send({ message: "Valor não é do tipo object" });
       };
 
       const elements = [];

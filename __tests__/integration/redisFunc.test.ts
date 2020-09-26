@@ -7,8 +7,7 @@ beforeAll(() => {
 
 describe('Operações do Redis', () => {
   describe('SET', () => {
-    it('Dados válidos', async () => {
-
+    it('Valor setado', async () => {
       const response = await request(app.express)
         .post('/set')
         .send({
@@ -17,11 +16,12 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(200);
+      expect(response.body.message).toBe("OK");
     });
   });
 
   describe('SETEX', () => {
-    it('Dados válidos', async () => {
+    it('Valor setado', async () => {
       const response = await request(app.express)
         .post('/set')
         .send({
@@ -31,11 +31,12 @@ describe('Operações do Redis', () => {
         })
 
       expect(response.status).toBe(200);
+      expect(response.body.message).toBe("OK");
     });
   });
 
   describe('GET', () => {
-    it('Dados válidos', async () => {
+    it('Chave encontrada', async () => {
 
       const response = await request(app.express)
         .post('/get')
@@ -44,33 +45,75 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(200);
+      expect(response.body.message).toBe("valorSet");
+    });
+
+    it('Chave não encontrada', async () => {
+      const response = await request(app.express)
+        .post('/get')
+        .send({
+          "key": "chaveNãoSetada"
+        });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe("Valor não encontrado");
+    });
+
+    it('Chave encontrada não contem string', async () => {
+      await request(app.express)
+        .post('/set')
+        .send({
+          "key": "naoString",
+          "value": [15, 14, "-1"]
+        });
+
+      const response = await request(app.express)
+        .post('/get')
+        .send({
+          "key": "naoString"
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Valor não é castável para string");
     });
   });
 
   describe('DEL', () => {
-    it('Dados válidos', async () => {
+    it('Deletando 2 existentes e 1 inexistente', async () => {
       const response = await request(app.express)
         .post('/del')
         .send({
-          "keys": ["chaveSet", "chaveInexistente"]
+          "keys": ["chaveSet", "naoString", "chaveInexistente"]
         });
 
       expect(response.status).toBe(200);
+      expect(response.body.message).toBe(2);
+    });
+
+    it('Deletando 1 inexistente', async () => {
+      const response = await request(app.express)
+        .post('/del')
+        .send({
+          "keys": ["chaveInexistente"]
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe(0);
     });
   });
 
   describe('DBSIZE', () => {
-    it('Dados válidos', async () => {
-
+    it('Banco com 1 elemento', async () => {
       const response = await request(app.express)
         .post('/dbsize')
 
       expect(response.status).toBe(200);
+      expect(response.body.message).toBe(1);
     });
   });
 
   describe('INCR', () => {
-    it('Dados válidos', async () => {
+    it('Chave inexistente (inicia com 0, incrementa pra 1)', async () => {
       const response = await request(app.express)
         .post('/incr')
         .send({
@@ -78,12 +121,23 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(200);
+      expect(response.body.message).toBe(1);
+    });
+
+    it('Chave existente de tipo diferente', async () => {
+      const response = await request(app.express)
+        .post('/incr')
+        .send({
+          "key": "chaveSetex"
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Valor não é do tipo number");
     });
   });
 
   describe('ZADD', () => {
     it('Dados válidos', async () => {
-
       const response = await request(app.express)
         .post('/zadd')
         .send({
@@ -93,12 +147,51 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(200);
+      expect(response.body.message).toBe(7);
+    });
+
+    it('Apenas valores repetidos', async () => {
+      const response = await request(app.express)
+        .post('/zadd')
+        .send({
+          "key": "chaveZADD",
+          "score": [1, 4, 5, 1, 2, 3, 1],
+          "member": ["abc1", "abc5", "abc0", "abc2", "abc3", "abc4", "abc8"]
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe(0);
+    });
+
+    it('Tipo incompativel armazenado na chave', async () => {
+      const response = await request(app.express)
+        .post('/zadd')
+        .send({
+          "key": "chaveSetex",
+          "score": [1, 4, 5, 1, 2, 3, 1],
+          "member": ["abc1", "abc5", "abc0", "abc2", "abc3", "abc4", "abc8"]
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Valor não é do tipo object");
+    });
+
+    it('Score e member de tamanhos diferentes', async () => {
+      const response = await request(app.express)
+        .post('/zadd')
+        .send({
+          "key": "chaveZADD",
+          "score": [1, 4],
+          "member": ["abc1", "abc5", "abc0"]
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Score e Member de tamanhos diferentes");
     });
   });
 
   describe('ZCARD', () => {
     it('Dados válidos', async () => {
-
       const response = await request(app.express)
         .post('/zcard')
         .send({
@@ -106,6 +199,18 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(200);
+      expect(response.body.message).toBe(7);
+    });
+
+    it('Tipo incompativel armazenado na chave', async () => {
+      const response = await request(app.express)
+        .post('/zcard')
+        .send({
+          "key": "chaveSetex"
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Valor não é do tipo object");
     });
   });
 
@@ -120,6 +225,43 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(200);
+      expect(response.body.message).toBe(1);
+    });
+
+    it('Dado não encontrado na chave', async () => {
+      const response = await request(app.express)
+        .post('/zrank')
+        .send({
+          "key": "chaveZADD",
+          "member": "valorNãoEncontrado"
+        });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe(null);
+    });
+
+    it('Tipo incompativel armazenado na chave', async () => {
+      const response = await request(app.express)
+        .post('/zrank')
+        .send({
+          "key": "chaveSetex",
+          "member": "abc8"
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Valor não é do tipo object");
+    });
+
+    it('Chave inexistente', async () => {
+      const response = await request(app.express)
+        .post('/zrank')
+        .send({
+          "key": "chaveInexistente",
+          "member": "abc8"
+        });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe(null);
     });
   });
 
@@ -134,6 +276,33 @@ describe('Operações do Redis', () => {
         })
 
       expect(response.status).toBe(200);
+      expect(response.body.message).toHaveLength(5);
+    });
+
+    it('Tipo incompativel armazenado na chave', async () => {
+      const response = await request(app.express)
+        .post('/zrange')
+        .send({
+          "key": "chaveSetex",
+          "start": 4,
+          "stop": 2
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Valor não é do tipo object");
+    });
+
+    it('Chave inexistente', async () => {
+      const response = await request(app.express)
+        .post('/zrange')
+        .send({
+          "key": "chaveInexistente",
+          "start": 4,
+          "stop": 2
+        });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe(null);
     });
   });
 });
