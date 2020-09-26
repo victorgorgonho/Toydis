@@ -1,11 +1,24 @@
+// Tipos
 import { Request, Response } from 'express';
+import HashTable from '../models/hashTable';
+import {
+  SetFuncBody,
+  GetFuncBody,
+  DelFuncBody,
+  IncrFuncBody,
+  ZAddFuncBody,
+  OrderedArrayType,
+  ZCardFuncBody,
+  ZRankFuncBody,
+  ZRangeFuncBody
+} from '../../services/types';
 
-import { hashTable } from '../models/hashTable';
-import { SetFuncBody, GetFuncBody, DelFuncBody, IncrFuncBody, ZAddFuncBody, OrderedArrayType, ZCardFuncBody, ZRankFuncBody, ZRangeFuncBody } from '../../services/types';
+// Funções
 import { mergeSort } from '../../services/sort';
 import { binarySearch } from '../../services/binarySearch';
 
-const data = hashTable;
+// Banco de dados
+const data = HashTable;
 
 class RedisFuncController {
   // Associa um valor a uma chave
@@ -35,7 +48,7 @@ class RedisFuncController {
       } else {
         // Seta o valor
         data.set(key, value);
-      }
+      };
 
       return res.json({ message: "OK" });
     } catch (error) {
@@ -56,11 +69,11 @@ class RedisFuncController {
 
       if (!value) {
         return res.status(404).send({ message: 'Valor não encontrado' });
-      }
+      };
 
       if (typeof value !== 'string' && typeof value !== 'number') {
         return res.status(400).send({ message: 'Valor não é castável para string' });
-      }
+      };
 
       return res.json({ message: value });
     } catch (error) {
@@ -125,8 +138,9 @@ class RedisFuncController {
           data.set(key, value + 1);
         }
       } else {
-        return res.status(404).send({ message: 'Chave não cadastrada' });
-      }
+        // Se a chave não existir, setar pra 0 antes de incrementar
+        data.set(key, 1);
+      };
 
       return res.json({ message: value + 1 });
     } catch (error) {
@@ -136,7 +150,7 @@ class RedisFuncController {
     }
   };
 
-  // Adiciona um elemento a um conjunto ordenado
+  // Adiciona um elemento a um conjunto ordenado (não add se member for igual)
   async zadd(req: Request, res: Response) {
     try {
       const body: ZAddFuncBody = req.body;
@@ -148,22 +162,22 @@ class RedisFuncController {
       // Se não tiver nada na key, criar array
       if (!orderedArray) {
         orderedArray = [];
-      }
+      };
 
       // Executa se array não for do tipo objeto
       if (typeof orderedArray !== 'object') {
         return res.status(400).send({ message: 'Valor não é do tipo object' });
-      }
+      };
 
       // Executa se arrays de score e member tiverem tamanhos diferentes
       if (score.length !== member.length) {
         return res.status(400).send({ message: "Score e Member de tamanhos diferentes" });
-      }
+      };
 
       // Adiciona novos items ao array de forma desordenada
       for (let index = 0; index < score.length; index++) {
         orderedArray.push([score[index], member[index]]);
-      }
+      };
 
       // Ordena elementos do Array através do merge sort
       const newOrderedArray = mergeSort(orderedArray);
@@ -190,15 +204,15 @@ class RedisFuncController {
       // Busca valor associado a chave
       let orderedArray: OrderedArrayType = data.get(key);
 
-      // Se não tiver nada na key, criar array
+      // Se não tiver nada na key, retornar 0
       if (!orderedArray) {
         return res.json({ message: 0 });
-      }
+      };
 
       // Executa se array não for do tipo objeto
       if (typeof orderedArray !== 'object') {
         return res.status(400).send({ message: 'Valor não é do tipo object' });
-      }
+      };
 
       return res.json({ message: orderedArray.length });
     } catch (error) {
@@ -217,22 +231,22 @@ class RedisFuncController {
       // Busca valor associado a chave
       let orderedArray: OrderedArrayType = data.get(key);
 
-      // Se não tiver nada na key, criar array
+      // Se não tiver nada na key, retornar null
       if (!orderedArray) {
         return res.status(400).send({ message: null });
-      }
+      };
 
       // Executa se array não for do tipo objeto
       if (typeof orderedArray !== 'object') {
         return res.status(400).send({ message: 'Valor não é do tipo object' });
-      }
+      };
 
-      // Index of member
+      // Index de member
       const index = binarySearch(orderedArray, member, 0, orderedArray.length - 1);
 
       if (index === false) {
         return res.status(400).send({ message: null });
-      }
+      };
 
       return res.json({ message: index });
     } catch (error) {
@@ -251,16 +265,15 @@ class RedisFuncController {
       // Busca valor associado a chave
       let orderedArray: OrderedArrayType = data.get(key);
 
-      // Se não tiver nada na key, criar array
+      // Se não tiver nada na key, retornar null
       if (!orderedArray) {
-        console.log('array vazio');
         return res.status(400).send({ message: null });
-      }
+      };
 
       // Executa se array não for do tipo objeto
       if (typeof orderedArray !== 'object') {
         return res.status(400).send({ message: 'Valor não é do tipo object' });
-      }
+      };
 
       const elements = [];
       let left = start;
@@ -269,27 +282,27 @@ class RedisFuncController {
       // Se start for negativo, converter para notação correta
       if (start < 0) {
         left = orderedArray.length - Math.abs(start);
-      }
+      };
 
       // Se stop for negativo, converter para notação correta
       if (stop < 0) {
         right = orderedArray.length - Math.abs(stop);
-      }
+      };
 
       // Se stop for maior que o tamanho do array, converter para tamanho do array
       if (right > (orderedArray.length - 1)) {
         right = (orderedArray.length - 1);
-      }
+      };
 
       // Se start for maior que stop, ou start maior que o tamanho do array, retornar array vazio
       if (left > right || left > (orderedArray.length - 1)) {
         return res.status(400).send({ message: [] });
-      }
+      };
 
       // Percorre do start até o stop, adicionando elementos ao array
       for (let index = left; index <= right; index++) {
         elements.push(orderedArray[index][1]);
-      }
+      };
 
       return res.json({ message: elements });
     } catch (error) {

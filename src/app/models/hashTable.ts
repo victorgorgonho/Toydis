@@ -154,4 +154,4 @@ class HashTable {
   };
 };
 
-export const hashTable = new HashTable();
+export default new HashTable();
