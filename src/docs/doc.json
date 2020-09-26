@@ -1,0 +1,618 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Toydis API define a interface de um um serviço HTTP que expõe um banco de dados chave-valor.\n\nToda a interface é elaborada segundo os comandos do [Redis].\n\n[redis]: https://redis.io/\n",
+    "title": "Toydis",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/set": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/KeyCommand"
+                },
+                {
+                  "$ref": "#/definitions/ValueCommand"
+                },
+                {
+                  "$ref": "#/definitions/ExCommand"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação bem-sucedida",
+            "schema": {
+              "$ref": "#/definitions/StringReply"
+            }
+          },
+          "400": {
+            "description": "Requisição inválida",
+            "schema": {
+              "$ref": "#/definitions/ErrorReply"
+            }
+          }
+        },
+        "tags": [
+          "command"
+        ],
+        "description": "O comportamento desse _endpoint_ é o mesmo do [comando `SET`][verb].\n\nCaso o corpo da requisição inclua a propriedade `ex`, o comportamento desse _endpoint_ é o mesmo do [comando `SET`][verb]\ncom a opção `EX`.\n\n[verb]: https://redis.io/commands/set\n",
+        "summary": "Associa um valor a uma chave"
+      }
+    },
+    "/get": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/KeyCommand"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação bem-sucedida",
+            "schema": {
+              "$ref": "#/definitions/StringReply"
+            }
+          },
+          "400": {
+            "description": "Requisição inválida",
+            "schema": {
+              "$ref": "#/definitions/ErrorReply"
+            }
+          }
+        },
+        "tags": [
+          "command"
+        ],
+        "description": "O comportamento desse _endpoint_ é o mesmo do [comando `GET`][verb].\n\n[verb]: https://redis.io/commands/get\n",
+        "summary": "Retorna o valor associado a uma chave"
+      }
+    },
+    "/del": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/KeyArrayCommand"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação bem-sucedida",
+            "schema": {
+              "$ref": "#/definitions/IntegerReply"
+            }
+          },
+          "400": {
+            "description": "Requisição inválida",
+            "schema": {
+              "$ref": "#/definitions/ErrorReply"
+            }
+          }
+        },
+        "tags": [
+          "command"
+        ],
+        "description": "O comportamento desse _endpoint_ é o mesmo do [comando `DEL`][verb].\n\n[verb]: https://redis.io/commands/del\n",
+        "summary": "Exclui o valor associado a uma chave"
+      }
+    },
+    "/dbsize": {
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Operação bem-sucedida",
+            "schema": {
+              "$ref": "#/definitions/IntegerReply"
+            }
+          }
+        },
+        "tags": [
+          "command"
+        ],
+        "description": "O comportamento desse _endpoint_ é o mesmo do [comando `DBSIZE`][verb].\n\n[verb]: https://redis.io/commands/dbsize\n",
+        "summary": "Retorna o número de chaves contidas no servidor"
+      }
+    },
+    "/incr": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/KeyCommand"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação bem-sucedida",
+            "schema": {
+              "$ref": "#/definitions/IntegerReply"
+            }
+          },
+          "400": {
+            "description": "Requisição inválida",
+            "schema": {
+              "$ref": "#/definitions/ErrorReply"
+            }
+          }
+        },
+        "tags": [
+          "command"
+        ],
+        "description": "O comportamento desse _endpoint_ é o mesmo do [comando `INCR`][verb].\n\n[verb]: https://redis.io/commands/incr\n",
+        "summary": "Incrementa o valor associado a uma chave"
+      }
+    },
+    "/zadd": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "score": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                },
+                "member": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação bem-sucedida",
+            "schema": {
+              "$ref": "#/definitions/IntegerReply"
+            }
+          },
+          "400": {
+            "description": "Requisição inválida",
+            "schema": {
+              "$ref": "#/definitions/ErrorReply"
+            }
+          }
+        },
+        "tags": [
+          "command"
+        ],
+        "description": "O comportamento desse _endpoint_ é o mesmo do [comando `ZADD`][verb].\n\n[verb]: https://redis.io/commands/zadd\n",
+        "summary": "Adiciona um elemento a um conjunto ordenado"
+      }
+    },
+    "/zcard": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/KeyCommand"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação bem-sucedida",
+            "schema": {
+              "$ref": "#/definitions/IntegerReply"
+            }
+          },
+          "400": {
+            "description": "Requisição inválida",
+            "schema": {
+              "$ref": "#/definitions/ErrorReply"
+            }
+          }
+        },
+        "tags": [
+          "command"
+        ],
+        "description": "O comportamento desse _endpoint_ é o mesmo do [comando `ZCARD`][verb].\n\n[verb]: https://redis.io/commands/zcard\n",
+        "summary": "Retorna o tamanho de um conjunto ordenado"
+      }
+    },
+    "/zrank": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/KeyCommand"
+                },
+                {
+                  "$ref": "#/definitions/ZMemberCommand"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação bem-sucedida",
+            "schema": {
+              "$ref": "#/definitions/IntegerReply"
+            }
+          },
+          "400": {
+            "description": "Requisição inválida",
+            "schema": {
+              "$ref": "#/definitions/ErrorReply"
+            }
+          }
+        },
+        "tags": [
+          "command"
+        ],
+        "description": "O comportamento desse _endpoint_ é o mesmo do [comando `ZRANK`][verb].\n\n[verb]: https://redis.io/commands/zrank\n",
+        "summary": "Retorna o índice de um elemento em um conjunto ordenado"
+      }
+    },
+    "/zrange": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/KeyCommand"
+                },
+                {
+                  "$ref": "#/definitions/ZRangeCommand"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação bem-sucedida",
+            "schema": {
+              "$ref": "#/definitions/ArrayReply"
+            }
+          },
+          "400": {
+            "description": "Requisição inválida",
+            "schema": {
+              "$ref": "#/definitions/ErrorReply"
+            }
+          }
+        },
+        "tags": [
+          "command"
+        ],
+        "description": "O comportamento desse _endpoint_ é o mesmo do [comando `ZRANGE`][verb].\n\n[verb]: https://redis.io/commands/zrange\n",
+        "summary": "Retorna os elementos contidos em um intervalo de um conjunto ordenado"
+      }
+    },
+    "/getAll": {
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Operação bem-sucedida",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "command"
+        ],
+        "description": "O comportamento desse _endpoint_ retorna todo o conteúdo do hashtable do servidor.\n",
+        "summary": "Retorna hashtable"
+      }
+    }
+  },
+  "definitions": {
+    "ArrayReply": {
+      "additionalProperties": false,
+      "example": {
+        "reply": [
+          "reply"
+        ]
+      },
+      "properties": {
+        "reply": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "reply"
+      ],
+      "type": "object"
+    },
+    "ErrorReply": {
+      "additionalProperties": false,
+      "example": {
+        "reply": "ERR"
+      },
+      "properties": {
+        "reply": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "reply"
+      ],
+      "type": "object"
+    },
+    "ExCommand": {
+      "additionalProperties": false,
+      "example": {
+        "ex": 1
+      },
+      "properties": {
+        "ex": {
+          "format": "int64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "IntegerReply": {
+      "additionalProperties": false,
+      "example": {
+        "reply": 1
+      },
+      "properties": {
+        "reply": {
+          "format": "int64",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "reply"
+      ],
+      "type": "object"
+    },
+    "KeyArrayCommand": {
+      "additionalProperties": false,
+      "example": {
+        "keys": [
+          "key"
+        ]
+      },
+      "properties": {
+        "keys": {
+          "items": {
+            "nullable": true,
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "keys"
+      ],
+      "type": "object"
+    },
+    "KeyCommand": {
+      "additionalProperties": false,
+      "example": {
+        "key": "key"
+      },
+      "properties": {
+        "key": {
+          "nullable": true,
+          "type": "string"
+        }
+      },
+      "required": [
+        "key"
+      ],
+      "type": "object"
+    },
+    "StringReply": {
+      "additionalProperties": false,
+      "example": {
+        "reply": "reply"
+      },
+      "properties": {
+        "reply": {
+          "nullable": true,
+          "type": "string"
+        }
+      },
+      "required": [
+        "reply"
+      ],
+      "type": "object"
+    },
+    "ValueCommand": {
+      "additionalProperties": false,
+      "example": {
+        "value": "value"
+      },
+      "properties": {
+        "value": {
+          "nullable": true,
+          "type": "string"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "type": "object"
+    },
+    "ZMemberCommand": {
+      "additionalProperties": false,
+      "example": {
+        "member": "member"
+      },
+      "properties": {
+        "member": {
+          "nullable": true,
+          "type": "string"
+        }
+      },
+      "required": [
+        "member"
+      ],
+      "type": "object"
+    },
+    "ZRangeCommand": {
+      "additionalProperties": false,
+      "example": {
+        "start": 0,
+        "stop": 1
+      },
+      "properties": {
+        "start": {
+          "format": "int64",
+          "type": "integer"
+        },
+        "stop": {
+          "format": "int64",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "stop"
+      ],
+      "type": "object"
+    },
+    "ZScoreCommand": {
+      "additionalProperties": false,
+      "example": {
+        "score": 1
+      },
+      "properties": {
+        "score": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "score"
+      ],
+      "type": "object"
+    }
+  },
+  "tags": [
+    {
+      "description": "Comandos do banco de dados",
+      "name": "command"
+    }
+  ],
+  "x-components": {
+    "responses": {
+      "200Array": {
+        "description": "Operação bem-sucedida",
+        "schema": {
+          "$ref": "#/definitions/ArrayReply"
+        }
+      },
+      "200Integer": {
+        "description": "Operação bem-sucedida",
+        "schema": {
+          "$ref": "#/definitions/IntegerReply"
+        }
+      },
+      "200String": {
+        "description": "Operação bem-sucedida",
+        "schema": {
+          "$ref": "#/definitions/StringReply"
+        }
+      },
+      "400Error": {
+        "description": "Requisição inválida",
+        "schema": {
+          "$ref": "#/definitions/ErrorReply"
+        }
+      }
+    }
+  }
+}

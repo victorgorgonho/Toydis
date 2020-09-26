@@ -21,7 +21,7 @@ import { binarySearch } from '../../services/binarySearch';
 const data = HashTable;
 
 class RedisFuncController {
-  // Associa um valor a uma chave
+  // Associa um valor a uma chave - O(1)
   async set(req: Request, res: Response) {
     try {
       const body: SetFuncBody = req.body;
@@ -58,7 +58,7 @@ class RedisFuncController {
     }
   };
 
-  // Retorna o valor associado a uma chave
+  // Retorna o valor associado a uma chave - O(1)
   async get(req: Request, res: Response) {
     try {
       const body: GetFuncBody = req.body;
@@ -83,7 +83,7 @@ class RedisFuncController {
     }
   };
 
-  // Exclui o valor associado a uma chave
+  // Exclui o valor associado a uma chave - O(N)
   async del(req: Request, res: Response) {
     try {
       const body: DelFuncBody = req.body;
@@ -109,7 +109,7 @@ class RedisFuncController {
     }
   };
 
-  // Retorna o número de chaves contidas no servidor
+  // Retorna o número de chaves contidas no servidor - O(1)
   async dbsize(req: Request, res: Response) {
     try {
       return res.json({ message: data.size });
@@ -120,7 +120,7 @@ class RedisFuncController {
     }
   };
 
-  // Incrementa o valor associado a uma chave
+  // Incrementa o valor associado a uma chave - O(1)
   async incr(req: Request, res: Response) {
     try {
       const body: IncrFuncBody = req.body;
@@ -150,7 +150,7 @@ class RedisFuncController {
     }
   };
 
-  // Adiciona um elemento a um conjunto ordenado (não add se member for igual)
+  // Adiciona um elemento a um conjunto ordenado (não add se member for igual) - O(n + log(n)), seria O(log(n)) utilizando objeto JavaScript
   async zadd(req: Request, res: Response) {
     try {
       const body: ZAddFuncBody = req.body;
@@ -175,6 +175,7 @@ class RedisFuncController {
       };
 
       // Adiciona novos items ao array de forma desordenada
+      // O(n), porém se recebidos como objeto (proibido), seria O(1)
       for (let index = 0; index < score.length; index++) {
         orderedArray.push([score[index], member[index]]);
       };
@@ -195,7 +196,7 @@ class RedisFuncController {
     }
   };
 
-  // Retorna o número de elementos em um conjunto ordenado
+  // Retorna o número de elementos em um conjunto ordenado - O(1)
   async zcard(req: Request, res: Response) {
     try {
       const body: ZCardFuncBody = req.body;
@@ -222,7 +223,7 @@ class RedisFuncController {
     }
   };
 
-  // Retorna o índice de um elemento em um conjunto ordenado
+  // Retorna o índice de um elemento em um conjunto ordenado - O(log(n)), apresenta erros
   async zrank(req: Request, res: Response) {
     try {
       const body: ZRankFuncBody = req.body;
@@ -256,7 +257,7 @@ class RedisFuncController {
     }
   };
 
-  // Retorna os elementos contidos em um intervalo de um conjunto ordenado
+  // Retorna os elementos contidos em um intervalo de um conjunto ordenado - O(N)
   async zrange(req: Request, res: Response) {
     try {
       const body: ZRangeFuncBody = req.body;
@@ -312,7 +313,7 @@ class RedisFuncController {
     }
   };
 
-  // Retorna todos os buckets
+  // Retorna todos os buckets - O(1)
   async getAll(req: Request, res: Response) {
     try {
       return res.json({ message: data.getAll() });

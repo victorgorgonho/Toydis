@@ -1,11 +1,17 @@
 import express from 'express';
 import { celebrate } from 'celebrate';
 
+import swaggerUi from 'swagger-ui-express';
+import swaggerDocument from './docs/doc.json';
+
 import Schemas from './config/joiSchemas';
 
 import { redisFuncController } from './app/controllers/redisFuncController';
 
 const routes = express.Router();
+
+routes.use('/docs', swaggerUi.serve);
+routes.get('/docs', swaggerUi.setup(swaggerDocument, { customCss: '.swagger-ui .topbar { display: none }' }));
 
 routes.post('/set', celebrate(Schemas.setSchema), redisFuncController.set);
 routes.post('/get', celebrate(Schemas.getSchema), redisFuncController.get);
