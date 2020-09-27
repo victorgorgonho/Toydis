@@ -1,0 +1,17 @@
+version: "3.7"
+
+services:
+  app:
+    container_name: app
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/home/node/app/src
+      - ./nodemon.json:/home/node/app/nodemon.json
+      - ./tsconfig.json:/home/node/app/tsconfig.json
+    expose:
+      - "3333"
+    ports:
+      - "3333:3333"
+    command: yarn start
