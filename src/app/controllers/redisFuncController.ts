@@ -20,12 +20,18 @@ import { binarySearch } from '../../services/binarySearch';
 // Banco de dados
 const data = HashTable;
 
+// Importando formatos de validação do corpo esperado das requisições
+import Schemas from '../../config/joiSchemas';
+
 class RedisFuncController {
   // Associa um valor a uma chave - O(1)
   async set(req: Request, res: Response) {
     try {
       const body: SetFuncBody = req.body;
       const { key, value, ex } = body;
+
+      // Valida corpo da requisição com formato esperado
+      await Schemas.setSchema.body.validateAsync(req.body);
 
       // Se um parametro de segundos foi fornecido, expirar o dado
       if (ex) {
@@ -50,11 +56,18 @@ class RedisFuncController {
         data.set(key, value);
       };
 
-      return res.json({ message: "OK" });
+      return res.json({ reply: "OK" });
     } catch (error) {
-      console.log(error);
+      // Falha na requisição capturada pelo Middleware
+      if (error.details) {
+        const message = error.details[0].message;
 
-      return res.status(400).send({ message: null });
+        if (message || typeof message === 'string') {
+          return res.status(400).send({ reply: message });
+        }
+      }
+
+      return res.status(400).send({ reply: null });
     }
   };
 
@@ -64,22 +77,34 @@ class RedisFuncController {
       const body: GetFuncBody = req.body;
       const { key } = body;
 
+      // Valida corpo da requisição com formato esperado
+      await Schemas.getSchema.body.validateAsync(req.body);
+
       // Busca valor associado a chave
       const value = data.get(key);
 
+      // Retorna nulo se a chave não for encontrada
       if (!value) {
-        return res.status(404).send({ message: 'Valor não encontrado' });
+        return res.status(400).send({ reply: null });
       };
 
+      // Retorna erro se o valor não for uma string
       if (typeof value !== 'string' && typeof value !== 'number') {
-        return res.status(400).send({ message: 'Valor não é castável para string' });
+        return res.status(400).send({ reply: 'Valor não é castável para string' });
       };
 
-      return res.json({ message: value });
+      return res.json({ reply: value });
     } catch (error) {
-      console.log(error);
+      // Falha na requisição capturada pelo Middleware
+      if (error.details) {
+        const message = error.details[0].message;
 
-      return res.status(400).send({ message: null });
+        if (message || typeof message === 'string') {
+          return res.status(400).send({ reply: message });
+        }
+      }
+
+      return res.status(400).send({ reply: null });
     }
   };
 
@@ -91,6 +116,9 @@ class RedisFuncController {
 
       let count = 0;
 
+      // Valida corpo da requisição com formato esperado
+      await Schemas.delSchema.body.validateAsync(req.body);
+
       // Percorre todas as chaves do body
       keys.forEach((key: string) => {
         const value = data.del(key);
@@ -101,22 +129,29 @@ class RedisFuncController {
         };
       });
 
-      return res.json({ message: count });
+      return res.json({ reply: count });
     } catch (error) {
-      console.log(error);
+      // Falha na requisição capturada pelo Middleware
+      if (error.details) {
+        const message = error.details[0].message;
 
-      return res.status(400).send({ message: null });
+        if (message || typeof message === 'string') {
+          return res.status(400).send({ reply: message });
+        }
+      }
+
+      return res.status(400).send({ reply: null });
     }
   };
 
   // Retorna o número de chaves contidas no servidor - O(1)
   async dbsize(req: Request, res: Response) {
     try {
-      return res.json({ message: data.size });
+      return res.json({ reply: data.size });
     } catch (error) {
       console.log(error);
 
-      return res.status(400).send({ message: null });
+      return res.status(400).send({ reply: null });
     }
   };
 
@@ -126,13 +161,16 @@ class RedisFuncController {
       const body: IncrFuncBody = req.body;
       const { key } = body;
 
+      // Valida corpo da requisição com formato esperado
+      await Schemas.incrSchema.body.validateAsync(req.body);
+
       // Busca valor associado a chave
       const value = data.get(key);
 
       // Executa se algum valor foi retornado
       if (value) {
         if (typeof value !== 'number') {
-          return res.status(400).send({ message: 'Valor não é do tipo number' });
+          return res.status(400).send({ reply: 'Valor não é do tipo number' });
         } else if (typeof value === 'number') {
           // Incrementa
           data.set(key, value + 1);
@@ -142,11 +180,18 @@ class RedisFuncController {
         data.set(key, 1);
       };
 
-      return res.json({ message: value + 1 });
+      return res.json({ reply: value + 1 });
     } catch (error) {
-      console.log(error);
+      // Falha na requisição capturada pelo Middleware
+      if (error.details) {
+        const message = error.details[0].message;
 
-      return res.status(400).send({ message: null });
+        if (message || typeof message === 'string') {
+          return res.status(400).send({ reply: message });
+        }
+      }
+
+      return res.status(400).send({ reply: null });
     }
   };
 
@@ -155,6 +200,9 @@ class RedisFuncController {
     try {
       const body: ZAddFuncBody = req.body;
       const { key, score, member } = body;
+
+      // Valida corpo da requisição com formato esperado
+      await Schemas.zaddSchema.body.validateAsync(req.body);
 
       // Busca valor associado a chave
       let orderedArray: OrderedArrayType = data.get(key);
@@ -166,12 +214,12 @@ class RedisFuncController {
 
       // Executa se array não for do tipo objeto
       if (typeof orderedArray !== 'object') {
-        return res.status(400).send({ message: "Valor não é do tipo object" });
+        return res.status(400).send({ reply: "Valor não é do tipo object" });
       };
 
       // Executa se arrays de score e member tiverem tamanhos diferentes
       if (score.length !== member.length) {
-        return res.status(400).send({ message: "Score e Member de tamanhos diferentes" });
+        return res.status(400).send({ reply: "Score e Member de tamanhos diferentes" });
       };
 
       // Adiciona novos items ao array de forma desordenada
@@ -188,11 +236,18 @@ class RedisFuncController {
 
       data.set(key, newOrderedArray);
 
-      return res.json({ message: elementsAddedCount });
+      return res.json({ reply: elementsAddedCount });
     } catch (error) {
-      console.log(error);
+      // Falha na requisição capturada pelo Middleware
+      if (error.details) {
+        const message = error.details[0].message;
 
-      return res.status(400).send({ message: null });
+        if (message || typeof message === 'string') {
+          return res.status(400).send({ reply: message });
+        }
+      }
+
+      return res.status(400).send({ reply: null });
     }
   };
 
@@ -202,24 +257,34 @@ class RedisFuncController {
       const body: ZCardFuncBody = req.body;
       const { key } = body;
 
+      // Valida corpo da requisição com formato esperado
+      await Schemas.zcardSchema.body.validateAsync(req.body);
+
       // Busca valor associado a chave
       let orderedArray: OrderedArrayType = data.get(key);
 
       // Se não tiver nada na key, retornar 0
       if (!orderedArray) {
-        return res.json({ message: 0 });
+        return res.json({ reply: 0 });
       };
 
       // Executa se array não for do tipo objeto
       if (typeof orderedArray !== 'object') {
-        return res.status(400).send({ message: "Valor não é do tipo object" });
+        return res.status(400).send({ reply: "Valor não é do tipo object" });
       };
 
-      return res.json({ message: orderedArray.length });
+      return res.json({ reply: orderedArray.length });
     } catch (error) {
-      console.log(error);
+      // Falha na requisição capturada pelo Middleware
+      if (error.details) {
+        const message = error.details[0].message;
 
-      return res.status(400).send({ message: null });
+        if (message || typeof message === 'string') {
+          return res.status(400).send({ reply: message });
+        }
+      }
+
+      return res.status(400).send({ reply: null });
     }
   };
 
@@ -229,31 +294,41 @@ class RedisFuncController {
       const body: ZRankFuncBody = req.body;
       const { key, member } = body;
 
+      // Valida corpo da requisição com formato esperado
+      await Schemas.zrankSchema.body.validateAsync(req.body);
+
       // Busca valor associado a chave
       let orderedArray: OrderedArrayType = data.get(key);
 
       // Se não tiver nada na key, retornar null
       if (!orderedArray) {
-        return res.status(404).send({ message: null });
+        return res.status(400).send({ reply: null });
       };
 
       // Executa se array não for do tipo objeto
       if (typeof orderedArray !== 'object') {
-        return res.status(400).send({ message: "Valor não é do tipo object" });
+        return res.status(400).send({ reply: "Valor não é do tipo object" });
       };
 
       // Index de member
       const index = binarySearch(orderedArray, member, 0, orderedArray.length - 1);
 
       if (index === false) {
-        return res.status(404).send({ message: null });
+        return res.status(400).send({ reply: null });
       };
 
-      return res.json({ message: index });
+      return res.json({ reply: index });
     } catch (error) {
-      console.log(error);
+      // Falha na requisição capturada pelo Middleware
+      if (error.details) {
+        const message = error.details[0].message;
 
-      return res.status(400).send({ message: null });
+        if (message || typeof message === 'string') {
+          return res.status(400).send({ reply: message });
+        }
+      }
+
+      return res.status(400).send({ reply: null });
     }
   };
 
@@ -263,17 +338,20 @@ class RedisFuncController {
       const body: ZRangeFuncBody = req.body;
       const { key, start, stop } = body;
 
+      // Valida corpo da requisição com formato esperado
+      await Schemas.zrangeSchema.body.validateAsync(req.body);
+
       // Busca valor associado a chave
       let orderedArray: OrderedArrayType = data.get(key);
 
       // Se não tiver nada na key, retornar null
       if (!orderedArray) {
-        return res.status(404).send({ message: null });
+        return res.status(400).send({ reply: null });
       };
 
       // Executa se array não for do tipo objeto
       if (typeof orderedArray !== 'object') {
-        return res.status(400).send({ message: "Valor não é do tipo object" });
+        return res.status(400).send({ reply: "Valor não é do tipo object" });
       };
 
       const elements = [];
@@ -297,7 +375,7 @@ class RedisFuncController {
 
       // Se start for maior que stop, ou start maior que o tamanho do array, retornar array vazio
       if (left > right || left > (orderedArray.length - 1)) {
-        return res.status(400).send({ message: [] });
+        return res.status(400).send({ reply: [] });
       };
 
       // Percorre do start até o stop, adicionando elementos ao array
@@ -305,22 +383,29 @@ class RedisFuncController {
         elements.push(orderedArray[index][1]);
       };
 
-      return res.json({ message: elements });
+      return res.json({ reply: elements });
     } catch (error) {
-      console.log(error);
+      // Falha na requisição capturada pelo Middleware
+      if (error.details) {
+        const message = error.details[0].message;
 
-      return res.status(400).send({ message: null });
+        if (message || typeof message === 'string') {
+          return res.status(400).send({ reply: message });
+        }
+      }
+
+      return res.status(400).send({ reply: null });
     }
   };
 
   // Retorna todos os buckets - O(1)
   async getAll(req: Request, res: Response) {
     try {
-      return res.json({ message: data.getAll() });
+      return res.json({ reply: data.getAll() });
     } catch (error) {
       console.log(error);
 
-      return res.status(400).send({ message: null });
+      return res.status(400).send({ reply: null });
     }
   };
 };

@@ -1,4 +1,6 @@
-export function binarySearch(arr: [number, string][], x: string, start: number, end: number): any {
+import { OrderedArrayType } from './types';
+
+export function binarySearch(arr: OrderedArrayType, x: string, start: number, end: number): any {
 
   // Condição base 
   if (start > end)

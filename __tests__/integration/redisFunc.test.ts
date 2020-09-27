@@ -16,7 +16,7 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(200);
-      expect(response.body.message).toBe("OK");
+      expect(response.body.reply).toBe("OK");
     });
   });
 
@@ -31,7 +31,7 @@ describe('Operações do Redis', () => {
         })
 
       expect(response.status).toBe(200);
-      expect(response.body.message).toBe("OK");
+      expect(response.body.reply).toBe("OK");
     });
   });
 
@@ -45,7 +45,7 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(200);
-      expect(response.body.message).toBe("valorSet");
+      expect(response.body.reply).toBe("valorSet");
     });
 
     it('Chave não encontrada', async () => {
@@ -55,8 +55,8 @@ describe('Operações do Redis', () => {
           "key": "chaveNãoSetada"
         });
 
-      expect(response.status).toBe(404);
-      expect(response.body.message).toBe("Valor não encontrado");
+      expect(response.status).toBe(400);
+      expect(response.body.reply).toBe(null);
     });
 
     it('Chave encontrada não contem string', async () => {
@@ -74,7 +74,7 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Valor não é castável para string");
+      expect(response.body.reply).toBe("Valor não é castável para string");
     });
   });
 
@@ -87,7 +87,7 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(200);
-      expect(response.body.message).toBe(2);
+      expect(response.body.reply).toBe(2);
     });
 
     it('Deletando 1 inexistente', async () => {
@@ -98,7 +98,7 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(200);
-      expect(response.body.message).toBe(0);
+      expect(response.body.reply).toBe(0);
     });
   });
 
@@ -108,7 +108,7 @@ describe('Operações do Redis', () => {
         .post('/dbsize')
 
       expect(response.status).toBe(200);
-      expect(response.body.message).toBe(1);
+      expect(response.body.reply).toBe(1);
     });
   });
 
@@ -121,7 +121,7 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(200);
-      expect(response.body.message).toBe(1);
+      expect(response.body.reply).toBe(1);
     });
 
     it('Chave existente de tipo diferente', async () => {
@@ -132,7 +132,7 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Valor não é do tipo number");
+      expect(response.body.reply).toBe("Valor não é do tipo number");
     });
   });
 
@@ -147,7 +147,7 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(200);
-      expect(response.body.message).toBe(7);
+      expect(response.body.reply).toBe(7);
     });
 
     it('Apenas valores repetidos', async () => {
@@ -160,7 +160,7 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(200);
-      expect(response.body.message).toBe(0);
+      expect(response.body.reply).toBe(0);
     });
 
     it('Tipo incompativel armazenado na chave', async () => {
@@ -173,7 +173,7 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Valor não é do tipo object");
+      expect(response.body.reply).toBe("Valor não é do tipo object");
     });
 
     it('Score e member de tamanhos diferentes', async () => {
@@ -186,7 +186,7 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Score e Member de tamanhos diferentes");
+      expect(response.body.reply).toBe("Score e Member de tamanhos diferentes");
     });
   });
 
@@ -199,7 +199,7 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(200);
-      expect(response.body.message).toBe(7);
+      expect(response.body.reply).toBe(7);
     });
 
     it('Tipo incompativel armazenado na chave', async () => {
@@ -210,7 +210,7 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Valor não é do tipo object");
+      expect(response.body.reply).toBe("Valor não é do tipo object");
     });
   });
 
@@ -225,7 +225,7 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(200);
-      expect(response.body.message).toBe(1);
+      expect(response.body.reply).toBe(1);
     });
 
     it('Dado não encontrado na chave', async () => {
@@ -236,8 +236,8 @@ describe('Operações do Redis', () => {
           "member": "valorNãoEncontrado"
         });
 
-      expect(response.status).toBe(404);
-      expect(response.body.message).toBe(null);
+      expect(response.status).toBe(400);
+      expect(response.body.reply).toBe(null);
     });
 
     it('Tipo incompativel armazenado na chave', async () => {
@@ -249,7 +249,7 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Valor não é do tipo object");
+      expect(response.body.reply).toBe("Valor não é do tipo object");
     });
 
     it('Chave inexistente', async () => {
@@ -260,8 +260,8 @@ describe('Operações do Redis', () => {
           "member": "abc8"
         });
 
-      expect(response.status).toBe(404);
-      expect(response.body.message).toBe(null);
+      expect(response.status).toBe(400);
+      expect(response.body.reply).toBe(null);
     });
   });
 
@@ -276,7 +276,7 @@ describe('Operações do Redis', () => {
         })
 
       expect(response.status).toBe(200);
-      expect(response.body.message).toHaveLength(5);
+      expect(response.body.reply).toHaveLength(5);
     });
 
     it('Tipo incompativel armazenado na chave', async () => {
@@ -289,7 +289,7 @@ describe('Operações do Redis', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Valor não é do tipo object");
+      expect(response.body.reply).toBe("Valor não é do tipo object");
     });
 
     it('Chave inexistente', async () => {
@@ -301,8 +301,8 @@ describe('Operações do Redis', () => {
           "stop": 2
         });
 
-      expect(response.status).toBe(404);
-      expect(response.body.message).toBe(null);
+      expect(response.status).toBe(400);
+      expect(response.body.reply).toBe(null);
     });
   });
 });

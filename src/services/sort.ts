@@ -1,5 +1,7 @@
+import { OrderedArrayType } from './types';
+
 // Merge Sort Implentation (Recursion)
-export function mergeSort(unsortedArray: [number, string][]): [number, string][] {
+export function mergeSort(unsortedArray: OrderedArrayType): OrderedArrayType {
   // Não precisa ordenar array se possuir 1 ou menos elementos
   if (unsortedArray.length <= 1) {
     return unsortedArray;
@@ -19,7 +21,7 @@ export function mergeSort(unsortedArray: [number, string][]): [number, string][]
 }
 
 // Mergeia os dois arrays
-function merge(left: [number, string][], right: [number, string][]) {
+function merge(left: OrderedArrayType, right: OrderedArrayType) {
   let resultArray = [], leftIndex = 0, rightIndex = 0;
 
   // Concatena valores ordenados
