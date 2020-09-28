@@ -8,6 +8,15 @@ que expõe operações a serem feitas em um banco de dados chave-valor,
 similar ao [Redis](https://redis.io/).
 
 
+Instruções
+----------
+
+- Para rodar a aplicação basta executar o comando _docker-compose up_ na raiz do projeto. 
+
+- Para rodar os testes automatizados (desenvolvidos com o Jest) basta executar o comando _yarn test_ na raiz do projeto. 
+
+-  O arquivo insomnia-toydis.json é uma exportação do insomnia, pra facilitar os testes manuais.
+
 Requisitos
 ----------
 
