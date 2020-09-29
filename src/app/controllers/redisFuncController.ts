@@ -18,7 +18,10 @@ import { mergeSort } from '../../services/sort';
 import { binarySearch } from '../../services/binarySearch';
 
 // Banco de dados
-const data = HashTable;
+const data = new HashTable;
+
+// Banco de dados auxiliar para ZADD e ZRANK
+const auxData = new HashTable;
 
 // Importando formatos de validação do corpo esperado das requisições
 import Schemas from '../../config/joiSchemas';
@@ -226,6 +229,9 @@ class RedisFuncController {
       // O(n), porém se recebidos como objeto (proibido), seria O(1)
       for (let index = 0; index < score.length; index++) {
         orderedArray.push([score[index], member[index]]);
+
+        // Armazena no banco auxiliar o score do member associado
+        auxData.set(member[index], score[index]);
       };
 
       // Ordena elementos do Array através do merge sort
@@ -288,7 +294,7 @@ class RedisFuncController {
     }
   };
 
-  // Retorna o índice de um elemento em um conjunto ordenado - O(log(n)), apresenta erros
+  // Retorna o índice de um elemento em um conjunto ordenado - O(log(n) + M), sendo M o número de elementos de score igual até encontrar o member
   async zrank(req: Request, res: Response) {
     try {
       const body: ZRankFuncBody = req.body;
@@ -310,8 +316,11 @@ class RedisFuncController {
         return res.status(400).send({ reply: "Valor não é do tipo object" });
       };
 
+      // Score do member
+      const memberScore = auxData.get(member);
+
       // Index de member
-      const index = binarySearch(orderedArray, member, 0, orderedArray.length - 1);
+      const index = binarySearch(orderedArray, memberScore, member, 0, orderedArray.length - 1);
 
       if (index === false) {
         return res.status(400).send({ reply: null });

@@ -154,4 +154,4 @@ class HashTable {
   };
 };
 
-export default new HashTable();
+export default HashTable;
